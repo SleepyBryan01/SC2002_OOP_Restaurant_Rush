@@ -2,7 +2,7 @@
 
 Turn-based restaurant management game for the command line, written in Java 17 (no external libraries, works offline).
 
-* Repository: SleepyBryan01/SC2002_OOP_Restaurant_Rush 
+* Repository: 
 * Lab group: [LAB GROUP]   Members: [Member name 1], [Member name 2], [Member name 3], [Member name 4], [Member name 5]
 
 **Final version: Stage 3**: basic operation, then VIP and Critic customers, then the Host, ComboMeal and Happy Hour. An optional window version sits on top of it in tag `gui-extra`.
