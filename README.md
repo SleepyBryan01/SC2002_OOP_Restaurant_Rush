@@ -1,1 +1,0 @@
-# SC2002_OOP_Restaurant_Rush
