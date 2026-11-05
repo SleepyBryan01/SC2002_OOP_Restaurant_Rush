@@ -2,7 +2,7 @@
 
 Turn-based restaurant management game for the command line, written in Java 17 (no external libraries, works offline).
 
-* Repository: https://github.com/SleepyBryan01/SC2002_OOP_Restaurant_Rush
+* Repository: https://github.com/pyizaw/NTU_SCE1_SC2002
 * Lab group: [LAB GROUP]   Members: [Member name 1], [Member name 2], [Member name 3], [Member name 4], [Member name 5]
 
 **Final version: Stage 3**: basic operation, then VIP and Critic customers, then the Host, ComboMeal and Happy Hour. An optional window version sits on top of it in tag `gui-extra`.
@@ -43,7 +43,7 @@ Optional window version (same game and rules):
 java -cp out restaurantrush.Main --gui
 ```
 
-Replay a recorded run. Commands are read from the file and echoed, and lines starting with `#` are comments that explain each decision:
+Replay a recorded run (commands are read from the file and echoed):
 
 ```bash
 java -cp out restaurantrush.Main runs/stage3-victory.txt
