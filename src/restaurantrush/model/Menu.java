@@ -15,6 +15,17 @@ public class Menu {
         return menu;
     }
 
+    public static Menu withCombos() {
+        Menu menu = standard();
+        int dishCount = menu.size();
+        for (int i = 0; i < dishCount; i++) {
+            for (int j = i + 1; j < dishCount; j++) {
+                menu.add(new ComboMeal(menu.get(i), menu.get(j)));
+            }
+        }
+        return menu;
+    }
+
     public void add(MenuItem item) {
         items.add(item);
     }

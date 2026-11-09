@@ -11,13 +11,17 @@ import restaurantrush.model.MenuItem;
 import restaurantrush.model.Order;
 import restaurantrush.model.Restaurant;
 import restaurantrush.model.customer.Customer;
+import restaurantrush.model.pricing.PriceCalculator;
 import restaurantrush.util.Money;
 
 public class Waiter extends Staff {
     private final Menu menu;
 
-    public Waiter(Menu menu) {
+    private final PriceCalculator pricing;
+
+    public Waiter(Menu menu, PriceCalculator pricing) {
         this.menu = menu;
+        this.pricing = pricing;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class Waiter extends Staff {
                         + ": the customer must be seated and not have ordered yet (currently " + customer.getState() + ").");
             }
             MenuItem dish = customer.chooseDish(menu);
-            int bill = customer.billFor(dish);
+            int bill = pricing.priceFor(customer, dish, turn);
             customer.placeOrder(new Order(customer, dish, bill, turn));
             return ActionResult.ok("Customer " + customer.getLabel() + " orders " + dish + ". Bill locked at " + Money.format(bill) + ".");
         });

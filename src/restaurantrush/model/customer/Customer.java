@@ -111,6 +111,14 @@ public abstract class Customer {
         return (satisfaction + loss - 1) / loss;
     }
 
+    public boolean recover(int points) {
+        if (!state.isAwaitingService()) {
+            return false;
+        }
+        satisfaction = Math.min(MAX_SATISFACTION, satisfaction + points);
+        return true;
+    }
+
     protected void reduceSatisfaction(int points) {
         satisfaction = Math.max(0, satisfaction - points);
     }
