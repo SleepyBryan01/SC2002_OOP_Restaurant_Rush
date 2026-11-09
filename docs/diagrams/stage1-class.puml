@@ -139,6 +139,8 @@ set separator none
     COOK
     WAIT
     ..
+    -keyword: String
+    ..
     +getKeyword(): String
   }
   class TaskOption STAFF {
@@ -335,6 +337,7 @@ legend right
   <b>Key</b>
   Package by colour:  <back:#E3F2FD> view (boundary) </back> <back:#FFF3E0> controller (control) </back> <back:#F3E5F5> staff </back> <back:#E8F5E9> model / model.customer / model.pricing </back> <back:#ECEFF1> enums / util </back>
   + public   - private   # protected   ~ package   {static} underlined   {abstract} italic
-  Simple get...() accessors are omitted to keep the diagram readable.
+  Simple get...() accessors are omitted to keep the diagram readable. ConsoleView implements every GameView
+  operation (show... / ask...); its private formatting helpers and ConsoleStyle's other colour helpers are not listed.
 endlegend
 @enduml
