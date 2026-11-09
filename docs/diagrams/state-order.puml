@@ -9,10 +9,10 @@ state PAID GOODC
 state CANCELLED BADC
 
 PREPARING : Chef advances one unit per turn
+PREPARING : prepareOneUnit(turn) [units left > 1] / stays PREPARING
 READY : served next turn at the earliest
 
 [*] --> PREPARING : new Order(customer, item, price, turn)\n(Waiter takes the order; price locked)
-PREPARING --> PREPARING : prepareOneUnit(turn)\n[units left > 1]
 PREPARING --> READY : prepareOneUnit(turn)\n[last unit] / readyTurn = turn
 READY --> SERVED : markServed()\n[readyTurn < turn]
 SERVED --> PAID : markPaid()\n(Cashier collects the bill)
