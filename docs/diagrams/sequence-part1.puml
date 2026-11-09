@@ -14,10 +14,10 @@ autonumber
 actor Manager
 boundary ":ConsoleView" as V BOUNDARY
 control ":GameController" as GC CONTROL
-participant ":HappyHour" as HH MENU
+participant ":HappyHour" as HH DOMAIN
 participant ":Host" as H STAFF
 participant ":Waiter" as W STAFF
-participant ":PriceCalculator" as PC MENU
+participant ":PriceCalculator" as PC DOMAIN
 participant ":Chef" as C STAFF
 participant ":Restaurant" as R DOMAIN
 participant "c5:\nRegularCustomer" as C5 DOMAIN
@@ -70,7 +70,7 @@ end
 
 loop until waiter.hasActed()
   GC -> V : askCommand(waiter, [order 5, serve 4, wait])
-  note over Manager, V #FFFBEA
+  note over V, GC #FFFBEA
     <b>Constrained choice:</b> the Waiter has ONE task.
     Serving #4's READY combo now would delay #5's
     3-unit order by a turn, and #5 could not pay by turn 18.

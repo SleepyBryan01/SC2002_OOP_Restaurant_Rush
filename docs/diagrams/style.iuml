@@ -1,21 +1,50 @@
+' Shared visual system for every Restaurant Rush diagram.
+' Layout: ELK routes every connector with right-angle (orthogonal) bends AND places
+' edge labels so they never sit on a box or a line (Graphviz "ortho" cannot place labels).
+!pragma layout elk
 skinparam linetype ortho
 skinparam dpi 110
 skinparam defaultFontName "Segoe UI"
 skinparam defaultFontSize 12
 skinparam classAttributeIconSize 0
 skinparam shadowing false
-skinparam roundCorner 8
+skinparam roundCorner 6
 skinparam packageStyle rectangle
-skinparam ArrowColor #555555
+skinparam padding 2
+skinparam ArrowColor #4A4F57
+skinparam ArrowFontColor #2E3238
+skinparam ArrowFontSize 11
 skinparam ArrowThickness 1.1
 skinparam class {
-  BorderColor #5A5A5A
+  BorderColor #4A4F57
   HeaderFontStyle bold
   StereotypeFontSize 10
 }
 skinparam package {
-  BorderColor #9E9E9E
-  FontColor #616161
+  BorderColor #9AA0A8
+  FontColor #4A4F57
+  FontStyle bold
+}
+skinparam stateFontStyle bold
+skinparam state {
+  BackgroundColor #F4F6F9
+  BorderColor #4A4F57
+  FontStyle bold
+  AttributeFontStyle normal
+  AttributeFontSize 11
+  AttributeFontColor #2E3238
+}
+skinparam usecase {
+  BackgroundColor #EAF2FB
+  BorderColor #4A4F57
+}
+skinparam actor {
+  BorderColor #4A4F57
+  BackgroundColor #F4F6F9
+}
+skinparam rectangle {
+  BorderColor #9AA0A8
+  FontColor #4A4F57
   FontStyle bold
 }
 skinparam note {
@@ -25,19 +54,27 @@ skinparam note {
 }
 skinparam legend {
   BackgroundColor #FAFAFA
-  BorderColor #BDBDBD
+  BorderColor #C4C8CE
   FontSize 11
 }
 skinparam title {
-  FontSize 17
+  FontSize 16
   FontStyle bold
 }
 
+' Package / role colours used by the class and sequence diagrams
 !define BOUNDARY #E3F2FD
 !define CONTROL  #FFF3E0
 !define STAFF    #F3E5F5
 !define DOMAIN   #E8F5E9
 !define MENU     #FFFDE7
 !define ENUMC    #ECEFF1
+' Stage key, identical in every diagram: new = green, changed = amber
 !define NEWC     #A5D6A7
 !define CHANGEDC #FFCC80
+!define STAGE2   #FFCC80
+!define STAGE3   #A5D6A7
+' Outcome colours for state diagrams only
+!define WAITC    #FFF3E0
+!define GOODC    #C8E6C9
+!define BADC     #FFCDD2

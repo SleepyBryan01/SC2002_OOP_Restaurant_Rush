@@ -122,7 +122,7 @@ Each staff member's possible tasks are listed as numbered options. Type the **op
 
 ## Diagrams
 
-All diagrams are in [`docs/diagrams`](docs/diagrams): `.puml` source, `.png`, and a zoomable `.svg`. Every connector is drawn with right-angle lines (`skinparam linetype ortho` in `style.iuml`). Class diagrams are generated from each tag's source. Green classes are new in that stage and orange classes changed.
+All diagrams are in [`docs/diagrams`](docs/diagrams): `.puml` source, `.png`, and a zoomable `.svg`. Every connector is drawn with right-angle lines, and the ELK layout (`!pragma layout elk` in `style.iuml`) keeps labels off boxes and lines. Class diagrams are generated from each tag's source. Each class is filled with its package colour (see the key), except that green classes are new in that stage and amber classes changed. Render with `java -DPLANTUML_LIMIT_SIZE=16384 -jar plantuml.jar -charset UTF-8 -tpng *.puml` so large diagrams are not cut off.
 
 | Diagram | File |
 |---|---|

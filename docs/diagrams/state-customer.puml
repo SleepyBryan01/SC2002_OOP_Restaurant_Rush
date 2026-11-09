@@ -1,32 +1,14 @@
 @startuml state-customer
 !include style.iuml
-skinparam nodesep 110
-skinparam ranksep 55
-skinparam state {
-  BackgroundColor #E8F5E9
-  BorderColor #5A5A5A
-  FontStyle bold
-}
-title State diagram - Customer (CustomerState, enforced by Customer.requireState)
+title State diagram - Customer (CustomerState, checked by Customer.requireState)
 
-state WAITING #FFF3E0
-state SEATED #FFF3E0
-state ORDERED #FFF3E0
-state PAID #C8E6C9
-state LEFT #FFCDD2
-
-[*] --> WAITING : arrives\n/ satisfaction = 100
-WAITING --> SEATED : seatAt(table)\n[table free]
-SEATED --> ORDERED : placeOrder(order)\n/ dish = chooseDish(menu)
-ORDERED --> EATING : serve(turn)\n[order READY before this turn]\n/ reactToService()
-EATING --> READY_TO_PAY : finishEatingIfDone(turn)\n[served on an earlier turn]
-READY_TO_PAY --> PAID : pay()\n[ready on an earlier turn]
-PAID --> [*]
-
-WAITING -right-> LEFT : [satisfaction = 0]
-SEATED -right-> LEFT : [satisfaction = 0]
-ORDERED -right-> LEFT : [satisfaction = 0]
-LEFT --> [*]
+state WAITING WAITC
+state SEATED WAITC
+state ORDERED WAITC
+state EATING
+state READY_TO_PAY
+state PAID GOODC
+state LEFT BADC
 
 WAITING : end of turn / satisfaction -= loss
 SEATED : end of turn / satisfaction -= loss
@@ -36,13 +18,25 @@ READY_TO_PAY : no satisfaction loss
 PAID : entry / revenue += bill,\nsatisfaction recorded, table freed
 LEFT : entry / order.cancel(), table freed,\nunhappy departure counted
 
-legend right
-  <b>Orange states</b> = awaiting service (isAwaitingService()).
-  loss per unserved turn: Regular 8, VIP 5, Critic 12 (Stage 2).
-  <b>Stage 2</b> reactToService(): Critic loses 20 if the dish sat
+[*] --> WAITING : arrives\n/ satisfaction = 100
+WAITING --> SEATED : seatAt(table)\n[table free]
+SEATED --> ORDERED : placeOrder(order)\n/ dish = chooseDish(menu)
+ORDERED --> EATING : serve(turn)\n[order READY before this turn]\n/ reactToService()
+EATING --> READY_TO_PAY : finishEatingIfDone(turn)\n[served on an earlier turn]
+READY_TO_PAY --> PAID : pay()\n[ready on an earlier turn]
+WAITING --> LEFT : [satisfaction = 0]
+SEATED --> LEFT : [satisfaction = 0]
+ORDERED --> LEFT : [satisfaction = 0]
+PAID --> [*]
+LEFT --> [*]
+
+legend top right
+  <b>Key</b>  <back:#FFF3E0>  amber = awaiting service (isAwaitingService())  </back>
+  Loss per unserved turn: Regular 8, VIP 5, Critic 12 (Stage 2).
+  <b>Stage 2</b> reactToService(): the Critic loses 20 if the dish sat
   READY for more than one turn (default: no reaction).
-  <b>Stage 3</b> turn start [Happy Hour active] in an orange state
+  <b>Stage 3</b> turn start [Happy Hour active] in an amber state
   / satisfaction = min(100, satisfaction + 15).
-  WAITING -> SEATED can be done by the Host (Stage 3) or the Waiter.
+  WAITING -> SEATED is done by the Host (Stage 3) or the Waiter.
 endlegend
 @enduml
