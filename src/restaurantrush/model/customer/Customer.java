@@ -42,6 +42,10 @@ public abstract class Customer {
         return item.getPriceCents();
     }
 
+    protected String reactToService(Order servedOrder, int turn) {
+        return "";
+    }
+
     public void seatAt(Table newTable) {
         requireState(CustomerState.WAITING);
         newTable.seat(this);
@@ -55,11 +59,12 @@ public abstract class Customer {
         state = CustomerState.ORDERED;
     }
 
-    public void serve(int turn) {
+    public String serve(int turn) {
         requireState(CustomerState.ORDERED);
         order.markServed();
         servedTurn = turn;
         state = CustomerState.EATING;
+        return reactToService(order, turn);
     }
 
     public boolean finishEatingIfDone(int turn) {

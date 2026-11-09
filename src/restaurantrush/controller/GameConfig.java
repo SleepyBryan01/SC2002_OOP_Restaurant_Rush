@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import restaurantrush.model.customer.CriticCustomer;
 import restaurantrush.model.customer.RegularCustomer;
+import restaurantrush.model.customer.VIPCustomer;
 
 public final class GameConfig {
     private final int maxTurns;
@@ -33,8 +35,8 @@ public final class GameConfig {
     public static GameConfig baseSetting() {
         Map<Integer, CustomerFactory> arrivals = new TreeMap<>();
         arrivals.put(1, RegularCustomer::new);
-        arrivals.put(4, RegularCustomer::new);
-        arrivals.put(7, RegularCustomer::new);
+        arrivals.put(4, VIPCustomer::new);
+        arrivals.put(7, CriticCustomer::new);
         arrivals.put(10, RegularCustomer::new);
         arrivals.put(13, RegularCustomer::new);
         arrivals.put(16, RegularCustomer::new);
