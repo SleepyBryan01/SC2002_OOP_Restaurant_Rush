@@ -8,13 +8,13 @@ state USED
 
 AVAILABLE : canActivate() = true
 AVAILABLE : prompt shown at every turn start
+AVAILABLE : turn start [manager answers n] / stays AVAILABLE
 ACTIVE : orders: billFor(item) x 80%
 ACTIVE : turn start / waiting customers +15 (max 100)
 ACTIVE : describe() shows the turns remaining
 USED : canActivate() = false, no prompt
 
 [*] --> AVAILABLE : new HappyHour()\n/ activatedTurn = -1
-AVAILABLE --> AVAILABLE : turn start\n[manager answers n]
 AVAILABLE --> ACTIVE : activate(turn)\n[manager answers y]\n/ activatedTurn = turn
 ACTIVE --> USED : next turn start\n[turn >= activatedTurn + 2]
 USED --> [*] : game ends

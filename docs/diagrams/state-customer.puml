@@ -31,7 +31,8 @@ PAID --> [*]
 LEFT --> [*]
 
 legend top right
-  <b>Key</b>  <back:#FFF3E0>  amber = awaiting service (isAwaitingService())  </back>
+  <b>Key</b>
+  |<#FFF3E0>        | awaiting service: isAwaitingService() is true |
   Loss per unserved turn: Regular 8, VIP 5, Critic 12 (Stage 2).
   <b>Stage 2</b> reactToService(): the Critic loses 20 if the dish sat
   READY for more than one turn (default: no reaction).
