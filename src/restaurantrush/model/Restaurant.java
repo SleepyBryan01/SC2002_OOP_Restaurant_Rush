@@ -105,16 +105,6 @@ public class Restaurant {
         return leaving;
     }
 
-    public List<Customer> recoverWaitingCustomers(int points) {
-        List<Customer> recovered = new ArrayList<>();
-        for (Customer c : customers) {
-            if (c.recover(points)) {
-                recovered.add(c);
-            }
-        }
-        return recovered;
-    }
-
     public List<Table> getTables() {
         return Collections.unmodifiableList(tables);
     }

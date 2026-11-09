@@ -23,7 +23,7 @@ public final class CommandParser {
             int number = Integer.parseInt(text);
             if (number < 1 || number > options.size()) {
                 throw new IllegalArgumentException("There is no option " + number + ". Choose a number from 1 to "
-                        + options.size() + ", or type a command such as 'seat 1'.");
+                        + options.size() + ", or type a command.");
             }
             return options.get(number - 1).getCommand();
         }
@@ -55,7 +55,7 @@ public final class CommandParser {
                 throw new IllegalArgumentException("Unknown command '" + parts[0] + "'. Type an option number, or 'help' for the list.");
         }
         if (parts.length != 2) {
-            throw new IllegalArgumentException("'" + parts[0] + "' needs a customer number, e.g. '" + parts[0] + " 1'.");
+            throw new IllegalArgumentException("'" + parts[0] + "' needs a customer number.");
         }
         try {
             return new StaffCommand(action, Integer.parseInt(parts[1]));

@@ -22,10 +22,6 @@ public interface GameView {
 
     StaffCommand askCommand(Staff staff, List<TaskOption> options);
 
-    boolean askActivateHappyHour(int turn);
-
-    void showHappyHourStatus(String status);
-
     void showEvent(String message);
 
     void showRejected(Staff staff, String reason);

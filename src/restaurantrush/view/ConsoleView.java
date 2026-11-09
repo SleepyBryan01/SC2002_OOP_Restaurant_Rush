@@ -23,16 +23,21 @@ import restaurantrush.util.Money;
 
 public class ConsoleView implements GameView {
     private static final int WIDTH = 78;
+    private static final int INNER = WIDTH - 4;
     private static final String DOUBLE_LINE = "=".repeat(WIDTH);
-    private static final String LINE = " " + "-".repeat(WIDTH - 1);
+    private static final String BOX_EDGE = "+" + "-".repeat(WIDTH - 2) + "+";
+    private static final String BAR_EDGE = "+" + "=".repeat(WIDTH - 2) + "+";
 
     private static final int AT_RISK_TURNS = 2;
+    private static final int BAR_WIDTH = 10;
 
     private final Scanner in;
 
     private final PrintStream out;
 
     private final boolean echoInput;
+
+    private final ConsoleStyle style;
 
     private boolean inputEnded;
 
@@ -48,30 +53,37 @@ public class ConsoleView implements GameView {
         this.in = in;
         this.out = out;
         this.echoInput = echoInput;
+        this.style = ConsoleStyle.detect(echoInput);
     }
 
     @Override
     public void showWelcome(GameConfig config, Menu menu) {
         this.config = config;
-        out.println(DOUBLE_LINE);
-        out.println(centre("R E S T A U R A N T   R U S H"));
-        out.println(DOUBLE_LINE);
+        out.println(BAR_EDGE);
+        boxRow("");
+        boxRow(centreIn(style.bold("R E S T A U R A N T     R U S H"), INNER));
+        boxRow(centreIn(style.dim("a turn-based restaurant management game"), INNER));
+        boxRow("");
+        out.println(BAR_EDGE);
         out.println(" You are the manager. Staff time is limited, so each turn you decide what");
         out.println(" each member of staff does. Customers choose their own food and the Cashier");
         out.println(" charges customers automatically.");
-        out.println();
-        out.println(" GOAL - checked after turn " + config.getMaxTurns() + " (the game always plays all "
-                + config.getMaxTurns() + " turns)");
-        out.println("   * at least " + config.getMinPaidCustomers() + " paid customers");
-        out.println("   * revenue of at least " + Money.format(config.getMinRevenueCents()));
-        out.println("   * average satisfaction of paid customers of at least " + config.getMinAverageSatisfaction());
-        out.println();
-        out.printf(" %-34s %9s   %s%n", "MENU", "Price", "Preparation units");
+
+        heading("GOAL", "checked after turn " + config.getMaxTurns() + "; the game always plays all "
+                + config.getMaxTurns() + " turns");
+        out.println("   [ ] at least " + config.getMinPaidCustomers() + " paid customers");
+        out.println("   [ ] revenue of at least " + Money.format(config.getMinRevenueCents()));
+        out.println("   [ ] average satisfaction of paid customers of at least " + config.getMinAverageSatisfaction());
+
+        heading("MENU", "customers choose their own dish");
+        out.printf("   %-3s %-30s %9s   %s%n", "#", "Item", "Price", "Prep units");
+        int position = 1;
         for (MenuItem item : menu.getItems()) {
-            out.printf("   %-32s %9s   %d%n", item.getName(), Money.format(item.getPriceCents()), item.getPrepUnits());
+            out.printf("   %-3s %-30s %9s   %s%n", position++, item.getName(), Money.format(item.getPriceCents()),
+                    "*".repeat(item.getPrepUnits()));
         }
-        out.println();
-        out.println(" ARRIVALS - one customer at the start of each turn below (satisfaction "
+
+        heading("ARRIVALS", "one customer at the start of each turn below (satisfaction "
                 + Customer.MAX_SATISFACTION + ")");
         StringBuilder turns = new StringBuilder("   Turn     ");
         StringBuilder types = new StringBuilder("   Customer ");
@@ -81,65 +93,53 @@ public class ConsoleView implements GameView {
         }
         out.println(turns.toString().stripTrailing());
         out.println(types.toString().stripTrailing());
-        out.println();
-        out.println(" HAPPY HOUR - can be switched on once per game, at the start of a turn.");
-        out.println("   It lasts that turn and the next. Orders taken while it is active get 20%");
-        out.println("   off (after the VIP discount), and customers still waiting for a table or");
-        out.println("   food recover 15 satisfaction at the start of each active turn.");
-        out.println();
-        out.println(" CUSTOMER TYPES (loss = satisfaction lost per turn while not yet served)");
+
+        heading("CUSTOMERS", "loss = satisfaction lost per turn while not yet served");
         out.println("   Regular  loss 8    pays full price");
-        out.println("   VIP      loss 5    gets 10% off the bill");
-        out.println("   Critic   loss 12   pays full price; orders the most demanding dish and");
-        out.println("                      loses 20 more if served a dish that went cold");
-        out.println("                      (it sat READY for more than one turn)");
-        out.println();
+
         printTurnGuide();
-        out.println();
         printHelp();
     }
 
     private void printTurnGuide() {
-        out.println(" HOW A TURN WORKS");
+        heading("HOW A TURN WORKS", "");
         out.println("   Step 1    Arrivals: the scheduled customer joins the waiting queue.");
-        out.println("             Happy Hour can then be switched on (once per game).");
-        out.println("   Step 2-3  Your choices: the Host may seat ONE customer, the Waiter does ONE");
-        out.println("             task (seat, take an order or serve), then the Chef does ONE");
-        out.println("             preparation unit.");
+        out.println("   Step 2-3  Your choices: the Waiter does ONE task (seat, take an order or");
+        out.println("             serve), then the Chef does ONE preparation unit.");
         out.println("   Step 4    Customers served on an earlier turn finish eating; the Cashier");
         out.println("             charges one READY_TO_PAY customer (oldest first).");
         out.println("   Step 5    Every customer not yet served loses satisfaction. A customer at");
         out.println("             0 leaves without paying and frees the table.");
-        out.println("   Timing:   a dish finished this turn can be served next turn at the");
+        out.println("   Timing    A dish finished this turn can be served next turn at the");
         out.println("             earliest; a customer pays the turn after finishing eating.");
     }
 
     private void printHelp() {
-        out.println(" HOW TO CHOOSE (n = customer number; an order has its customer's number)");
-        out.println("   Type the option number shown in the list, e.g.  1");
+        heading("HOW TO CHOOSE", "n = customer number; an order has its customer's number");
+        out.println("   Type the option number shown in the list");
         out.println("   or type a command:");
         printCommandList();
-        out.println("     Happy Hour: answer y or n when asked at the start of a turn");
         out.println("   Short forms: s = seat, o = order, v = serve, c = cook, w = wait.");
         out.println("   When 'wait' is the only option, just press Enter.");
         out.println("   Type 'help' at any prompt to see this again.");
     }
 
     private void printCommandList() {
-        out.println("     Host   : seat n | wait   (acts before the Waiter)");
-        out.println("     Waiter : seat n | order n | serve n | wait");
-        out.println("     Chef   : cook n | wait");
+        out.println("     Waiter     : seat n | order n | serve n | wait");
+        out.println("     Chef       : cook n | wait");
     }
 
     @Override
     public void showTurnHeader(int turn, int maxTurns) {
         out.println();
         out.println();
-        out.println(DOUBLE_LINE);
-        String left = " TURN " + turn + " of " + maxTurns;
-        String right = turn == maxTurns ? "LAST TURN" : (maxTurns - turn) + " turn" + (maxTurns - turn == 1 ? "" : "s") + " left after this";
-        out.println(left + " ".repeat(Math.max(1, WIDTH - 1 - left.length() - right.length())) + right);
-        out.println(DOUBLE_LINE);
+        out.println(style.cyan(DOUBLE_LINE));
+        String left = " TURN " + turn + " of " + maxTurns + "   " + bar(turn, maxTurns, maxTurns);
+        String right = turn == maxTurns ? "LAST TURN"
+                : (maxTurns - turn) + " turn" + (maxTurns - turn == 1 ? "" : "s") + " left after this";
+        int gap = Math.max(1, WIDTH - 1 - left.length() - right.length());
+        out.println(style.cyan(left + " ".repeat(gap) + right));
+        out.println(style.cyan(DOUBLE_LINE));
         eventsInStep = -1;
     }
 
@@ -147,7 +147,8 @@ public class ConsoleView implements GameView {
     public void showStep(TurnStep step) {
         closeStep();
         out.println();
-        out.println(" STEP " + step.getNumber() + "  " + step.getTitle().toUpperCase());
+        String title = "-- STEP " + step.getNumber() + "  " + step.getTitle().toUpperCase() + " ";
+        out.println(" " + style.cyan(title + "-".repeat(Math.max(0, WIDTH - 1 - title.length()))));
         eventsInStep = 0;
         currentStep = step;
     }
@@ -162,42 +163,64 @@ public class ConsoleView implements GameView {
         }
 
         out.println();
-        out.println(LINE);
-        out.println(" RESTAURANT AT THE START OF TURN " + turn);
-        out.println("   Revenue " + Money.format(restaurant.getRevenueCents())
-                + "    Paid customers " + restaurant.getPaidCount()
-                + "    Avg satisfaction (paid) " + formatAverage(restaurant.getAveragePaidSatisfaction()));
-        out.println("   " + nextArrivalText(turn));
+        out.println(BOX_EDGE);
+        boxRow(spread(style.bold("RESTAURANT AT THE START OF TURN " + turn), style.dim(nextArrivalText(turn))));
+        out.println(BOX_EDGE);
+        printTargets(restaurant);
+        out.println(BOX_EDGE);
 
-        out.println();
-        out.println("   WAITING QUEUE");
+        boxRow(style.bold("WAITING QUEUE"));
         if (restaurant.getWaitingQueue().isEmpty()) {
-            out.println("     (empty)");
+            boxRow(style.dim("  (empty)"));
         }
         for (Customer c : restaurant.getWaitingQueue()) {
-            out.printf("     %-12s sat %3d   %s%n", c.getLabel(), c.getSatisfaction(), patienceText(c));
+            boxRow(String.format("  %-12s ", c.getLabel()) + satisfactionBar(c) + "  " + patienceText(c));
         }
 
-        out.println("   TABLES");
+        boxRow(style.bold("TABLES"));
         for (Table t : restaurant.getTables()) {
             if (t.isFree()) {
-                out.printf("     Table %d   free%n", t.getNumber());
+                boxRow("  Table " + t.getNumber() + "   " + style.green("free"));
                 continue;
             }
             Customer c = t.getOccupant();
-            out.printf("     Table %d   %-12s sat %3d   %s%n", t.getNumber(), c.getLabel(), c.getSatisfaction(), c.getState());
-            out.println("               Order: " + orderText(c));
+            boxRow("  Table " + t.getNumber() + "   " + String.format("%-12s ", c.getLabel())
+                    + satisfactionBar(c) + "  " + c.getState());
+            boxRow("            Order: " + orderText(c));
             String patience = patienceText(c);
             if (!patience.isEmpty()) {
-                out.println("               " + patience);
+                boxRow("            " + patience);
             }
         }
+        out.println(BOX_EDGE);
 
-        out.println("   STAFF TASKS AVAILABLE");
+        boxRow(style.bold("STAFF TASKS AVAILABLE"));
         for (Staff s : staff) {
-            out.printf("     %-8s %s%n", s.getRole(), s.summariseTasks(restaurant, turn));
+            boxRow(String.format("  %-8s ", s.getRole()) + s.summariseTasks(restaurant, turn));
         }
-        out.println(LINE);
+        out.println(BOX_EDGE);
+    }
+
+    private void printTargets(Restaurant restaurant) {
+        if (config == null) {
+            return;
+        }
+        int paid = restaurant.getPaidCount();
+        int revenue = restaurant.getRevenueCents();
+        OptionalDouble avg = restaurant.getAveragePaidSatisfaction();
+        boxRow(targetRow("Paid customers", paid + " / " + config.getMinPaidCustomers(),
+                bar(paid, config.getMinPaidCustomers(), BAR_WIDTH), paid >= config.getMinPaidCustomers()));
+        boxRow(targetRow("Revenue", Money.format(revenue) + " / " + Money.format(config.getMinRevenueCents()),
+                bar(revenue, config.getMinRevenueCents(), BAR_WIDTH), revenue >= config.getMinRevenueCents()));
+        boolean avgMet = avg.isPresent() && avg.getAsDouble() >= config.getMinAverageSatisfaction();
+        boxRow(targetRow("Avg satisfaction (paid)", formatAverage(avg) + " / " + config.getMinAverageSatisfaction(),
+                avg.isPresent() ? bar((int) Math.round(avg.getAsDouble()), 100, BAR_WIDTH) : bar(0, 1, BAR_WIDTH),
+                avgMet));
+    }
+
+    private String targetRow(String name, String value, String bar, boolean met) {
+        return String.format("%-24s %-18s ", name, value) + bar + "  "
+                + (met ? style.green("target met") : style.yellow("not yet"));
     }
 
     @Override
@@ -206,18 +229,19 @@ public class ConsoleView implements GameView {
             eventsInStep++;
         }
         out.println();
-        out.println("   " + staff.getRole().toUpperCase() + " - choose one task:");
+        out.println("   " + style.yellow(style.bold(staff.getRole().toUpperCase())) + " - choose one task:");
         int width = 0;
         for (TaskOption option : options) {
             width = Math.max(width, option.getCommand().toCommandText().length());
         }
         int number = 1;
         for (TaskOption option : options) {
-            out.printf("     %d) %-" + width + "s   %s%n", number++, option.getCommand().toCommandText(), option.getDescription());
+            out.println("     " + style.bold(number++ + ")") + " "
+                    + String.format("%-" + width + "s", option.getCommand().toCommandText()) + "   "
+                    + (option.isWait() ? style.dim(option.getDescription()) : option.getDescription()));
         }
-        boolean onlyWait = options.size() == 1 && options.get(0).isWait();
         while (true) {
-            out.print("   " + staff.getRole() + (onlyWait ? " (Enter = wait) > " : " > "));
+            out.print("   " + style.bold(staff.getRole() + " > "));
             String line = readLine();
             if (line == null) {
                 return StaffCommand.waitCommand();
@@ -229,34 +253,9 @@ public class ConsoleView implements GameView {
             try {
                 return CommandParser.parse(line, options);
             } catch (IllegalArgumentException e) {
-                printWrapped("   !! ", e.getMessage());
+                printWrapped("   !! ", e.getMessage(), true);
             }
         }
-    }
-
-    @Override
-    public boolean askActivateHappyHour(int turn) {
-        out.println();
-        while (true) {
-            out.print("   Switch on Happy Hour now? It lasts this turn and next (y/n, Enter = no) > ");
-            String line = readLine();
-            if (line == null) {
-                return false;
-            }
-            String answer = line.trim().toLowerCase();
-            if (answer.equals("y") || answer.equals("yes")) {
-                return true;
-            }
-            if (answer.isEmpty() || answer.equals("n") || answer.equals("no")) {
-                return false;
-            }
-            out.println("   !! Please answer y or n.");
-        }
-    }
-
-    @Override
-    public void showHappyHourStatus(String status) {
-        out.println("   ** " + status + " **");
     }
 
     @Override
@@ -264,13 +263,13 @@ public class ConsoleView implements GameView {
         if (eventsInStep >= 0) {
             eventsInStep++;
         }
-        printWrapped("   >> ", message);
+        printWrapped("   >> ", message, false);
     }
 
     @Override
     public void showRejected(Staff staff, String reason) {
-        printWrapped("   !! ", "Not allowed: " + reason);
-        out.println("      Choose again - the " + staff.getRole() + "'s task has not been used up.");
+        printWrapped("   !! ", "Not allowed: " + reason, true);
+        out.println("      " + style.dim("Choose again - the " + staff.getRole() + "'s task has not been used up."));
     }
 
     @Override
@@ -278,50 +277,60 @@ public class ConsoleView implements GameView {
         closeStep();
         eventsInStep = -1;
         out.println();
-        out.println(LINE);
-        out.println(" END OF TURN " + turn + " - RESULTS");
-        out.println("   Served " + restaurant.getServedCount()
-                + "    Unhappy departures " + restaurant.getUnhappyDepartures()
-                + "    Turns used " + turn + "/" + maxTurns);
-        out.println("   Revenue " + Money.format(restaurant.getRevenueCents())
-                + "    Avg satisfaction (paid) " + formatAverage(restaurant.getAveragePaidSatisfaction()));
+        out.println(BOX_EDGE);
+        boxRow(spread(style.bold("END OF TURN " + turn + " - RESULTS"), "Turns used " + turn + "/" + maxTurns));
+        out.println(BOX_EDGE);
+        boxRow("Served " + restaurant.getServedCount()
+                + "   Unhappy departures " + restaurant.getUnhappyDepartures()
+                + "   Revenue " + Money.format(restaurant.getRevenueCents())
+                + "   Avg sat. (paid) " + formatAverage(restaurant.getAveragePaidSatisfaction()));
         boolean any = false;
         for (Customer c : restaurant.getCustomers()) {
             if (c.getState().isAwaitingService() || c.getTable() != null) {
                 if (!any) {
-                    out.println("   Customers still in the restaurant:");
+                    boxRow(style.bold("Customers still in the restaurant"));
                     any = true;
                 }
-                out.printf("     %-12s %-13s sat %3d%s%n", c.getLabel(), c.getState(), c.getSatisfaction(), changeText(c));
+                boxRow(String.format("  %-12s %-13s ", c.getLabel(), c.getState()) + satisfactionBar(c) + changeText(c));
             }
         }
         if (!any) {
-            out.println("   Nobody is in the restaurant.");
+            boxRow(style.dim("Nobody is in the restaurant."));
         }
-        out.println(LINE);
+        out.println(BOX_EDGE);
     }
 
     @Override
     public void showResult(GameResult result) {
         GameConfig cfg = result.getConfig();
+        boolean won = result.isVictory();
         out.println();
         out.println();
-        out.println(DOUBLE_LINE);
-        out.println(centre(result.isVictory() ? "V I C T O R Y !" : "D E F E A T"));
-        out.println(DOUBLE_LINE);
-        out.printf("   %-28s %-10s %-12s %s%n", "Target", "Result", "Needed", "");
-        out.printf("   %-28s %-10s %-12s %s%n", "Paid customers", result.getPaidCustomers(),
-                ">= " + cfg.getMinPaidCustomers(), mark(result.isPaidTargetMet()));
-        out.printf("   %-28s %-10s %-12s %s%n", "Revenue", Money.format(result.getRevenueCents()),
-                ">= " + Money.format(cfg.getMinRevenueCents()), mark(result.isRevenueTargetMet()));
-        out.printf("   %-28s %-10s %-12s %s%n", "Avg satisfaction (paid)", formatAverage(result.getAverageSatisfaction()),
-                ">= " + cfg.getMinAverageSatisfaction(), mark(result.isSatisfactionTargetMet()));
-        out.println(LINE);
-        out.println("   Dishes served " + result.getServedCount() + "    Unhappy departures " + result.getUnhappyDepartures()
+        out.println(BAR_EDGE);
+        boxRow("");
+        String banner = won ? "V I C T O R Y !" : "D E F E A T";
+        boxRow(centreIn(won ? style.green(style.bold(banner)) : style.red(banner), INNER));
+        boxRow("");
+        out.println(BAR_EDGE);
+        boxRow(String.format("%-4s %-26s %-10s %-12s", "", "Target", "Result", "Needed"));
+        boxRow(resultRow(result.isPaidTargetMet(), "Paid customers", String.valueOf(result.getPaidCustomers()),
+                ">= " + cfg.getMinPaidCustomers()));
+        boxRow(resultRow(result.isRevenueTargetMet(), "Revenue", Money.format(result.getRevenueCents()),
+                ">= " + Money.format(cfg.getMinRevenueCents())));
+        boxRow(resultRow(result.isSatisfactionTargetMet(), "Avg satisfaction (paid)",
+                formatAverage(result.getAverageSatisfaction()), ">= " + cfg.getMinAverageSatisfaction()));
+        out.println(BOX_EDGE);
+        boxRow("Dishes served " + result.getServedCount() + "    Unhappy departures " + result.getUnhappyDepartures()
                 + "    Turns played " + cfg.getMaxTurns() + "/" + cfg.getMaxTurns());
-        out.println(result.isVictory() ? "   All three targets met - well managed!"
-                : "   Not every target was met - see the NOT MET rows above.");
-        out.println(DOUBLE_LINE);
+        boxRow(won ? style.green("All three targets met - well managed!")
+                : style.yellow("Not every target was met - see the NOT MET rows above."));
+        out.println(BAR_EDGE);
+    }
+
+    private String resultRow(boolean met, String target, String value, String needed) {
+        String mark = met ? style.green("[x]") : style.red("[ ]");
+        String verdict = met ? style.green("MET") : style.red("NOT MET");
+        return mark + "  " + String.format("%-26s %-10s %-12s ", target, value, needed) + verdict;
     }
 
     private String readLine() {
@@ -343,22 +352,61 @@ public class ConsoleView implements GameView {
         return null;
     }
 
-    private void printWrapped(String prefix, String message) {
+    private void heading(String title, String note) {
+        out.println();
+        out.println(" " + style.cyan(title) + (note.isEmpty() ? "" : style.dim("  (" + note + ")")));
+    }
+
+    private void boxRow(String content) {
+        int pad = INNER - ConsoleStyle.visibleLength(content);
+        out.println(pad >= 0 ? "| " + content + " ".repeat(pad) + " |" : "| " + content);
+    }
+
+    private static String spread(String left, String right) {
+        int gap = INNER - ConsoleStyle.visibleLength(left) - ConsoleStyle.visibleLength(right);
+        return left + " ".repeat(Math.max(1, gap)) + right;
+    }
+
+    private static String centreIn(String text, int width) {
+        return " ".repeat(Math.max(0, (width - ConsoleStyle.visibleLength(text)) / 2)) + text;
+    }
+
+    private static String bar(int value, int max, int width) {
+        int filled = max <= 0 ? 0 : Math.min(width, (int) Math.round((double) value * width / max));
+        filled = Math.max(0, filled);
+        return "[" + "#".repeat(filled) + ".".repeat(width - filled) + "]";
+    }
+
+    private String satisfactionBar(Customer c) {
+        int s = c.getSatisfaction();
+        return style.bySatisfaction(s, bar(s, Customer.MAX_SATISFACTION, BAR_WIDTH) + String.format(" %3d", s));
+    }
+
+    private void printWrapped(String prefix, String message, boolean warning) {
         String indent = " ".repeat(prefix.length());
         StringBuilder line = new StringBuilder(prefix);
+        boolean first = true;
         for (String word : message.split(" ")) {
             if (line.length() + word.length() + 1 > WIDTH && line.length() > prefix.length()) {
-                out.println(line.toString().stripTrailing());
+                out.println(colourEvent(line.toString().stripTrailing(), warning, first));
+                first = false;
                 line = new StringBuilder(indent);
             }
             line.append(word).append(' ');
         }
-        out.println(line.toString().stripTrailing());
+        out.println(colourEvent(line.toString().stripTrailing(), warning, first));
+    }
+
+    private String colourEvent(String text, boolean warning, boolean firstLine) {
+        if (warning) {
+            return style.red(text);
+        }
+        return firstLine ? style.green(text.substring(0, 6)) + text.substring(6) : text;
     }
 
     private void closeStep() {
         if (eventsInStep == 0 && currentStep != null) {
-            out.println("   " + quietStepText(currentStep));
+            out.println("   " + style.dim(quietStepText(currentStep)));
         }
         eventsInStep = -1;
         currentStep = null;
@@ -379,19 +427,20 @@ public class ConsoleView implements GameView {
 
     private String nextArrivalText(int turn) {
         int next = config == null ? -1 : config.nextArrivalAfter(turn);
-        return next < 0 ? "No more customers will arrive."
+        return next < 0 ? "No more arrivals"
                 : "Next arrival: turn " + next + " (" + config.arrivalTypeName(next) + ")";
     }
 
-    private static String patienceText(Customer c) {
+    private String patienceText(Customer c) {
         int left = c.turnsUntilLeaving();
         if (left < 0) {
             return "";
         }
         if (left == 1) {
-            return "!! LEAVES at the end of this turn if not served";
+            return style.red("!! LEAVES at the end of this turn if not served");
         }
-        return (left <= AT_RISK_TURNS ? "!! " : "") + "leaves in " + left + " turns if not served";
+        String text = "leaves in " + left + " turns if not served";
+        return left <= AT_RISK_TURNS ? style.red("!! " + text) : style.dim(text);
     }
 
     private static String orderText(Customer c) {
@@ -408,18 +457,11 @@ public class ConsoleView implements GameView {
             return "";
         }
         int change = c.getSatisfaction() - before;
-        return "   (" + (change > 0 ? "+" : "") + change + " this turn)";
-    }
-
-    private static String centre(String text) {
-        return " ".repeat(Math.max(0, (WIDTH - text.length()) / 2)) + text;
+        String text = "  (" + (change > 0 ? "+" : "") + change + " this turn)";
+        return change > 0 ? style.green(text) : style.red(text);
     }
 
     private static String formatAverage(OptionalDouble avg) {
         return avg.isPresent() ? String.format("%.1f", avg.getAsDouble()) : "N/A";
-    }
-
-    private static String mark(boolean met) {
-        return met ? "MET" : "NOT MET";
     }
 }

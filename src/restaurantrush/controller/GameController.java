@@ -7,11 +7,8 @@ import restaurantrush.model.ActionResult;
 import restaurantrush.model.Menu;
 import restaurantrush.model.Restaurant;
 import restaurantrush.model.customer.Customer;
-import restaurantrush.model.pricing.HappyHour;
-import restaurantrush.model.pricing.PriceCalculator;
 import restaurantrush.staff.Cashier;
 import restaurantrush.staff.Chef;
-import restaurantrush.staff.Host;
 import restaurantrush.staff.Staff;
 import restaurantrush.staff.StaffCommand;
 import restaurantrush.staff.Waiter;
@@ -23,8 +20,6 @@ public class GameController {
     private final Restaurant restaurant;
 
     private final Menu menu;
-
-    private final HappyHour happyHour;
 
     private final List<Staff> directedStaff;
 
@@ -38,9 +33,8 @@ public class GameController {
         this.config = config;
         this.view = view;
         this.restaurant = new Restaurant(config.getTableCount());
-        this.menu = Menu.withCombos();
-        this.happyHour = new HappyHour();
-        this.directedStaff = List.of(new Host(), new Waiter(menu, new PriceCalculator(happyHour)), new Chef());
+        this.menu = Menu.standard();
+        this.directedStaff = List.of(new Waiter(menu), new Chef());
         this.cashier = new Cashier();
     }
 
@@ -69,7 +63,6 @@ public class GameController {
                     + customer.getSatisfaction() + ").");
         }
         view.showStatus(restaurant, turn, allStaff());
-        startOfTurnHappyHour(turn);
 
         view.showStep(TurnStep.MANAGER_CHOICES);
         for (Staff s : directedStaff) {
@@ -87,19 +80,6 @@ public class GameController {
             view.showEvent("Customer " + c.getLabel() + " ran out of patience and LEFT without paying.");
         }
         view.showTurnEnd(restaurant, turn, config.getMaxTurns());
-    }
-
-    private void startOfTurnHappyHour(int turn) {
-        if (happyHour.canActivate() && view.askActivateHappyHour(turn)) {
-            happyHour.activate(turn);
-            view.showEvent("Happy Hour switched on: 20% off orders taken this turn and next.");
-        }
-        view.showHappyHourStatus(happyHour.describe(turn));
-        if (happyHour.isActive(turn)) {
-            for (Customer c : restaurant.recoverWaitingCustomers(HappyHour.RECOVERY)) {
-                view.showEvent("Happy Hour: " + c.getLabel() + " recovers to satisfaction " + c.getSatisfaction() + ".");
-            }
-        }
     }
 
     private void runStaffChoice(Staff staff, int turn) {

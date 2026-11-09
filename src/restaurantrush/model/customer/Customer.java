@@ -42,10 +42,6 @@ public abstract class Customer {
         return item.getPriceCents();
     }
 
-    protected String reactToService(Order servedOrder, int turn) {
-        return "";
-    }
-
     public void seatAt(Table newTable) {
         requireState(CustomerState.WAITING);
         newTable.seat(this);
@@ -59,12 +55,11 @@ public abstract class Customer {
         state = CustomerState.ORDERED;
     }
 
-    public String serve(int turn) {
+    public void serve(int turn) {
         requireState(CustomerState.ORDERED);
         order.markServed();
         servedTurn = turn;
         state = CustomerState.EATING;
-        return reactToService(order, turn);
     }
 
     public boolean finishEatingIfDone(int turn) {
@@ -109,14 +104,6 @@ public abstract class Customer {
         }
         int loss = getSatisfactionLossPerTurn();
         return (satisfaction + loss - 1) / loss;
-    }
-
-    public boolean recover(int points) {
-        if (!state.isAwaitingService()) {
-            return false;
-        }
-        satisfaction = Math.min(MAX_SATISFACTION, satisfaction + points);
-        return true;
     }
 
     protected void reduceSatisfaction(int points) {

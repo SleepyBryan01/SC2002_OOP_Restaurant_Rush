@@ -11,17 +11,13 @@ import restaurantrush.model.MenuItem;
 import restaurantrush.model.Order;
 import restaurantrush.model.Restaurant;
 import restaurantrush.model.customer.Customer;
-import restaurantrush.model.pricing.PriceCalculator;
 import restaurantrush.util.Money;
 
 public class Waiter extends Staff {
     private final Menu menu;
 
-    private final PriceCalculator pricing;
-
-    public Waiter(Menu menu, PriceCalculator pricing) {
+    public Waiter(Menu menu) {
         this.menu = menu;
-        this.pricing = pricing;
     }
 
     @Override
@@ -64,7 +60,7 @@ public class Waiter extends Staff {
                         + ": the customer must be seated and not have ordered yet (currently " + customer.getState() + ").");
             }
             MenuItem dish = customer.chooseDish(menu);
-            int bill = pricing.priceFor(customer, dish, turn);
+            int bill = customer.billFor(dish);
             customer.placeOrder(new Order(customer, dish, bill, turn));
             return ActionResult.ok("Customer " + customer.getLabel() + " orders " + dish + ". Bill locked at " + Money.format(bill) + ".");
         });
@@ -84,10 +80,9 @@ public class Waiter extends Staff {
             if (!order.canBeServed(turn)) {
                 return ActionResult.fail("Order #" + order.getId() + " is not READY yet (" + order.describeStatus() + ").");
             }
-            String reaction = customer.serve(turn);
+            customer.serve(turn);
             restaurant.recordServed();
-            return ActionResult.ok("Served " + order.getItem().getName() + " to " + customer.getLabel() + "."
-                    + (reaction.isEmpty() ? "" : " " + reaction));
+            return ActionResult.ok("Served " + order.getItem().getName() + " to " + customer.getLabel() + ".");
         });
     }
 
