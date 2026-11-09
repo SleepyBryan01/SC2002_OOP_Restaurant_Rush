@@ -14,18 +14,30 @@ package "view (boundary)" {
   }
   class ConsoleView BOUNDARY {
     {static} -WIDTH: int
+    {static} -INNER: int
     {static} -DOUBLE_LINE: String
-    {static} -LINE: String
+    {static} -BOX_EDGE: String
+    {static} -BAR_EDGE: String
     {static} -AT_RISK_TURNS: int
+    {static} -BAR_WIDTH: int
     -in: Scanner
     -out: PrintStream
     -echoInput: boolean
+    -style: ConsoleStyle
     -inputEnded: boolean
     -config: GameConfig
     -eventsInStep: int
     -currentStep: TurnStep
     -satisfactionAtStart: Map<Integer, Integer>
     -- implements every GameView operation --
+  }
+  class ConsoleStyle BOUNDARY {
+    -enabled: boolean
+    {static} ~detect(scripted: boolean): ConsoleStyle
+    ~bold(s: String): String
+    ~red(s: String) / green / yellow / cyan / magenta / dim: String
+    ~bySatisfaction(satisfaction: int, s: String): String
+    {static} ~visibleLength(s: String): int
   }
   interface GameView BOUNDARY {
     +showWelcome(config: GameConfig, menu: Menu): void
@@ -284,6 +296,7 @@ CustomerFactory ..> Customer : <<creates>>
 GameResult --> "1" GameConfig : config
 ConsoleView ..|> GameView
 ConsoleView ..> CommandParser
+ConsoleView *-- "1" ConsoleStyle : style
 CommandParser ..> StaffCommand
 Staff <|-- Waiter
 Staff <|-- Chef
@@ -341,7 +354,7 @@ end note
 N4 .. Restaurant
 
 legend right
-  + public   - private   # protected   {static} underlined   {abstract} italic
+  + public   - private   # protected   ~ package   {static} underlined   {abstract} italic
   Simple get...() accessors are omitted to keep the diagram readable.
 endlegend
 @enduml

@@ -1,0 +1,25 @@
+@startuml state-happyhour
+!include style.iuml
+skinparam nodesep 70
+skinparam ranksep 60
+skinparam state {
+  BackgroundColor #A5D6A7
+  BorderColor #5A5A5A
+  FontStyle bold
+}
+title State diagram - HappyHour (Stage 3, derived from activatedTurn)
+
+[*] --> AVAILABLE : new HappyHour()\n/ activatedTurn = -1
+
+AVAILABLE --> AVAILABLE : turn start\n[manager answers n]
+AVAILABLE --> ACTIVE : activate(turn)\n[canActivate() and manager answers y]\n/ activatedTurn = turn
+ACTIVE --> USED : next turn start\n[turn >= activatedTurn + DURATION (2)]
+USED --> [*] : game ends
+
+AVAILABLE : canActivate() = true
+AVAILABLE : askActivateHappyHour() shown every turn
+ACTIVE : orders taken: price = customer.billFor(item) x 80%
+ACTIVE : turn start / waiting customers recover 15 (max 100)
+ACTIVE : describe() shows turns remaining
+USED : canActivate() = false; prompt no longer shown
+@enduml

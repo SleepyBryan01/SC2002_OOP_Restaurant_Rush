@@ -1,0 +1,28 @@
+@startuml state-order
+!include style.iuml
+skinparam nodesep 70
+skinparam ranksep 60
+skinparam state {
+  BackgroundColor #FFF3E0
+  BorderColor #5A5A5A
+  FontStyle bold
+}
+title State diagram - Order (OrderStatus)
+
+[*] --> PREPARING : new Order(customer, item, price, turn)\n(Waiter takes the order; price locked)
+
+PREPARING --> PREPARING : prepareOneUnit(turn)\n[unitsDone + 1 < item.prepUnits]\n/ unitsDone++
+PREPARING --> READY : prepareOneUnit(turn)\n[last unit]\n/ readyTurn = turn
+READY --> SERVED : markServed()\n[canBeServed(turn): readyTurn < turn]
+SERVED --> PAID : markPaid()\n(Cashier collects the bill)
+PREPARING --> CANCELLED : cancel()\n[customer left]
+READY --> CANCELLED : cancel()\n[customer left]
+
+state PAID #C8E6C9
+state CANCELLED #FFCDD2
+PAID --> [*]
+CANCELLED --> [*]
+
+PREPARING : Chef advances one unit per turn
+READY : a dish finished this turn is served\nnext turn at the earliest
+@enduml

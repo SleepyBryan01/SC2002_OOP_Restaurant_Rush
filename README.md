@@ -16,6 +16,7 @@ Turn-based restaurant management game for the command line, written in Java 17 (
 5. [Object-oriented design](#object-oriented-design)
 6. [Diagrams](#diagrams)
 7. [Change evidence between stages](#change-evidence-between-stages)
+   * [Regression checks](#regression-checks)
 8. [Window version (optional extra)](#window-version-optional-extra-tag-gui-extra)
 9. [AI history](#ai-history)
 10. [Video](#video)
@@ -43,6 +44,8 @@ Optional window version (same game and rules):
 java -cp out restaurantrush.Main --gui
 ```
 
+Colours switch on automatically in Windows Terminal, IntelliJ and Git Bash; replays and plain `cmd` windows stay plain text. Set `RR_COLOR=1` (or `0`) to force colour on (or off).
+
 Replay a recorded run (commands are read from the file and echoed):
 
 ```bash
@@ -59,10 +62,10 @@ git checkout stage-2
 
 | Tag | Commit | What it adds | Replay scripts (only valid at their own tag) | Result |
 |---|---|---|---|---|
-| `stage-1` | b17973a | Basic operation: Regular customers, Waiter, Chef, automatic Cashier, 2 tables, 3 dishes, 18 turns | `runs/stage1-victory.txt` / `runs/stage1-defeat.txt` | VICTORY 5 paid, $66.00, avg 79.2 / DEFEAT 3 paid, $42.00, avg 38.7 |
-| `stage-2` | 1f372d8 | VIP (turn 4) and Critic (turn 7) customers | `runs/stage2-victory.txt` / `runs/stage2-defeat.txt` | VICTORY 5 paid, $64.50, avg 78.0 / DEFEAT 3 paid, $31.50, avg 86.0 |
-| `stage-3` | 89025f6 | Host role, ComboMeal menu items, Happy Hour | `runs/stage3-victory.txt` / `runs/stage3-defeat.txt` | VICTORY 5 paid, $87.84, avg 86.6 / DEFEAT 3 paid, $41.40, avg 85.0 |
-| `gui-extra` | 43278ab | Optional Swing window on top of Stage 3 (no rule changes) | same as `stage-3` | same as `stage-3` |
+| `stage-1` | 7a32cc0 | Basic operation: Regular customers, Waiter, Chef, automatic Cashier, 2 tables, 3 dishes, 18 turns | `runs/stage1-victory.txt` / `runs/stage1-defeat.txt` | VICTORY 5 paid, $66.00, avg 79.2 / DEFEAT 3 paid, $42.00, avg 38.7 |
+| `stage-2` | e94b52f | VIP (turn 4) and Critic (turn 7) customers | `runs/stage2-victory.txt` / `runs/stage2-defeat.txt` | VICTORY 5 paid, $64.50, avg 78.0 / DEFEAT 3 paid, $31.50, avg 86.0 |
+| `stage-3` | 2b50e07 | Host role, ComboMeal menu items, Happy Hour | `runs/stage3-victory.txt` / `runs/stage3-defeat.txt` | VICTORY 5 paid, $87.84, avg 86.6 / DEFEAT 3 paid, $41.40, avg 85.0 |
+| `gui-extra` | a77ea20 | Optional Swing window on top of Stage 3 (no rule changes) | same as `stage-3` | same as `stage-3` |
 
 A later stage's script does not run on an earlier tag because later stages add prompts (Host, Happy Hour). Victory needs at least 4 paid customers, $45.00 revenue and an average paid satisfaction of 60 after turn 18.
 
@@ -119,7 +122,7 @@ Each staff member's possible tasks are listed as numbered options. Type the **op
 
 ## Diagrams
 
-All diagrams are in [`docs/diagrams`](docs/diagrams): `.puml` source, `.png`, and a zoomable `.svg`. Class diagrams are generated from each tag's source. Green classes are new in that stage and orange classes changed.
+All diagrams are in [`docs/diagrams`](docs/diagrams): `.puml` source, `.png`, and a zoomable `.svg`. Every connector is drawn with right-angle lines (`skinparam linetype ortho` in `style.iuml`). Class diagrams are generated from each tag's source. Green classes are new in that stage and orange classes changed.
 
 | Diagram | File |
 |---|---|
@@ -128,7 +131,10 @@ All diagrams are in [`docs/diagrams`](docs/diagrams): `.puml` source, `.png`, an
 | Stage 3 class diagram (final) | [stage3-class.svg](docs/diagrams/stage3-class.svg) |
 | Sequence diagram part 1: Stage 3, turn 13 (arrival, Happy Hour, Host, Waiter priority, pricing, cooking) | [sequence-part1.svg](docs/diagrams/sequence-part1.svg) |
 | Sequence diagram part 2: Stage 3, turns 14-18 (READY → SERVED → PAID, result) | [sequence-part2.svg](docs/diagrams/sequence-part2.svg) |
-| Customer and order life cycles | [lifecycle.svg](docs/diagrams/lifecycle.svg) |
+| Use case diagram (final design) | [usecase.svg](docs/diagrams/usecase.svg) |
+| State diagram: Customer | [state-customer.svg](docs/diagrams/state-customer.svg) |
+| State diagram: Order | [state-order.svg](docs/diagrams/state-order.svg) |
+| State diagram: Happy Hour (Stage 3) | [state-happyhour.svg](docs/diagrams/state-happyhour.svg) |
 
 **Sequence diagram use case:** this is Stage 3, `runs/stage3-victory.txt`, turns 13-18.
 
@@ -144,7 +150,7 @@ Full diffs (they work once the tags are pushed):
 [stage-3...gui-extra](https://github.com/pyizaw/NTU_SCE1_SC2002/compare/stage-3...gui-extra).
 Locally: `git diff --stat stage-1 stage-2`.
 
-### Stage 1 → Stage 2 (VIP and Critic customers): 6 source files, +95 / -5 lines
+### Stage 1 → Stage 2 (VIP and Critic customers): 6 source files, +93 / -6 lines
 
 | File | Change | Why |
 |---|---|---|
@@ -156,7 +162,9 @@ Locally: `git diff --stat stage-1 stage-2`.
 | `view/ConsoleView.java` | modified | Welcome screen explains the customer types |
 | — | **deleted: none** | Nothing had to be removed: the new types plug into the existing `Customer` hierarchy |
 
-**What still works:** `GameController`, `Restaurant`, `Order`, `Chef`, `Cashier` and the whole turn order are unchanged. The controller and staff only see `Customer`, so the new types run through the same code.
+**What still works:** `GameController`, `Restaurant`, `Order`, `Chef`, `Cashier`, `Staff`, `Menu` and `GameView` are unchanged (0 lines). `Stage1Checks` passes 27/27 on the stage-2 code, and `Stage2Checks` passes 11/11.
+
+**Effect on the design:** purely additive apart from one protected hook (`reactToService()`, neutral default) in `Customer`. The controller and staff only see `Customer`, so the new types run through the same code with no `instanceof` (Open/Closed, Liskov).
 
 ### Stage 2 → Stage 3 (Host, ComboMeal, Happy Hour): 11 source files, +230 / -6 lines
 
@@ -174,7 +182,23 @@ Locally: `git diff --stat stage-1 stage-2`.
 | `view/GameView.java`, `view/ConsoleView.java` | modified | Happy Hour prompt and status line, menu and arrivals sections |
 | — | **deleted: none** | — |
 
-**What still works:** the VIP and Critic rules, the turn order, Chef cooking, Cashier payment and the result check are unchanged. Both Stage 3 scripts replay to the results in the table above.
+**What still works:** `Order`, `Chef`, `Cashier`, `Staff`, `Table`, `MenuItem`, `GameConfig`, `GameResult` and all three customer subclasses are unchanged. On the stage-3 code `Stage1Checks` passes 27/27, `Stage2Checks` 11/11 and `Stage3Checks` 18/18, and both Stage 3 scripts replay to the results in the table above.
+
+**Effect on the design:** the Host and ComboMeal plug into the Stage 1 abstractions (`Staff`, `MenuItem`). Happy Hour is the cross-cutting change: `PriceCalculator` was extracted from the Waiter so that the discount order lives in one place, and `GameView` gained two operations.
+
+### Regression checks
+
+`checks/` holds three small check programs (no libraries). `Stage1Checks` only uses the Stage 1 API, so it is compiled and run against every later tag as well. From Git Bash:
+
+```bash
+bash checks/run-checks.sh
+```
+
+| Tag | Replays | Stage1Checks | Stage2Checks | Stage3Checks |
+|---|---|---|---|---|
+| `stage-1` | VICTORY $66.00 / DEFEAT $42.00 | 27/27 | - | - |
+| `stage-2` | VICTORY $64.50 / DEFEAT $31.50 | 27/27 | 11/11 | - |
+| `stage-3` | VICTORY $87.84 / DEFEAT $41.40 | 27/27 | 11/11 | 18/18 |
 
 ### Stage 3 → gui-extra (optional window)
 

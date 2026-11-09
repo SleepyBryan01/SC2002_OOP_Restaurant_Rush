@@ -1,0 +1,80 @@
+@startuml usecase
+!include style.iuml
+skinparam nodesep 40
+skinparam ranksep 70
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #E3F2FD
+  BorderColor #5A5A5A
+}
+skinparam rectangle {
+  BorderColor #5A5A5A
+  FontStyle bold
+}
+title Use case diagram - Restaurant Rush (final design, stage-3)
+left to right direction
+
+actor "Manager\n(player)" as Manager
+actor "Marker / TA" as TA
+actor "Turn clock\n(time)" as Clock <<system>>
+
+rectangle "Restaurant Rush" {
+  usecase "Start game and\nread the rules" as UC_Start
+  usecase "Play a turn" as UC_Turn
+  usecase "Review the\nrestaurant board" as UC_Board
+  usecase "Direct the Waiter" as UC_Waiter
+  usecase "Seat a customer" as UC_Seat
+  usecase "Take an order\n(customer picks dish,\nprice locked)" as UC_Order
+  usecase "Serve a READY dish" as UC_Serve
+  usecase "Direct the Chef\n(cook one unit)" as UC_Chef
+  usecase "Show help" as UC_Help
+  usecase "Reject an invalid\nchoice and ask again" as UC_Reject
+
+  usecase "Critic reacts to\ncold food (Stage 2)" as UC_Critic #FFCC80
+  usecase "Apply VIP discount\n(Stage 2)" as UC_VIP #FFCC80
+
+  usecase "Direct the Host\n(Stage 3)" as UC_Host #A5D6A7
+  usecase "Switch on Happy Hour\n(Stage 3)" as UC_Happy #A5D6A7
+
+  usecase "Admit arriving customer" as UC_Arrive
+  usecase "Finish eating" as UC_Eat
+  usecase "Collect one payment\n(Cashier, oldest first)" as UC_Pay
+  usecase "Apply patience loss\nand abandonment" as UC_Patience
+  usecase "Evaluate Victory\nor Defeat" as UC_Result
+
+  usecase "Replay a recorded run\n(runs/stageN-*.txt)" as UC_Replay
+}
+
+Manager --> UC_Start
+Manager --> UC_Turn
+TA --> UC_Replay
+
+UC_Replay ..> UC_Turn : <<include>>
+UC_Turn ..> UC_Board : <<include>>
+UC_Turn ..> UC_Waiter : <<include>>
+UC_Turn ..> UC_Chef : <<include>>
+UC_Happy ..> UC_Turn : <<extend>>\n[turn start,\nonce per game]
+UC_Host ..> UC_Turn : <<extend>>\n[Stage 3]
+UC_Help ..> UC_Turn : <<extend>>\n[types help]
+UC_Reject ..> UC_Turn : <<extend>>\n[choice not allowed]
+
+UC_Waiter <|-- UC_Seat
+UC_Waiter <|-- UC_Order
+UC_Waiter <|-- UC_Serve
+UC_VIP ..> UC_Order : <<extend>>\n[customer is VIP]
+UC_Critic ..> UC_Serve : <<extend>>\n[customer is Critic]
+
+Clock --> UC_Arrive
+Clock --> UC_Eat
+Clock --> UC_Pay
+Clock --> UC_Patience
+Clock --> UC_Result
+
+legend right
+  <b>Key</b>
+  <back:#E3F2FD>  Stage 1  </back>  <back:#FFCC80>  added in Stage 2  </back>  <back:#A5D6A7>  added in Stage 3  </back>
+  The Turn clock is the game loop: steps 1, 4 and 5 run
+  without any choice from the manager. The Cashier is
+  automatic, so it is part of the system, not an actor.
+endlegend
+@enduml
