@@ -8,7 +8,7 @@ A turn-based restaurant management game for the command line, written in Java 17
 
 **Video Presentation Link:** https://youtu.be/ckfjWXzogrM 
 
-| Members | | Matric Number |
+| Members |
 |---| 
 | Bryan Ng Chang Lin | 
 | Corbin Teo |
