@@ -6,7 +6,7 @@ A turn-based restaurant management game for the command line, written in Java 17
 
 **Repository:**  [SC2002_OOP_Restaurant_Rush](https://github.com/SleepyBryan01/SC2002_OOP_Restaurant_Rush)
 
-**Video Presentation Link** https://youtu.be/ckfjWXzogrM 
+**Video Presentation Link:** https://youtu.be/ckfjWXzogrM 
 
 | Members |
 |---|
