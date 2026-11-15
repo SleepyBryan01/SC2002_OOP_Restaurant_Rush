@@ -8,13 +8,13 @@ A turn-based restaurant management game for the command line, written in Java 17
 
 **Video Presentation Link:** https://youtu.be/ckfjWXzogrM 
 
-| Members |
-|---| 
-| Bryan Ng Chang Lin | 
-| Corbin Teo |
-| Deng Lisiwei Julie |
-| Poe Pyi Zaw |
-| Subarna Premkumar |
+| Members | Matric Number |
+|---|---|
+| Bryan Ng Chang Lin | U2520188B |
+| Corbin Teo | U2522049K |
+| Deng Lisiwei Julie | U2540735G |
+| Poe Pyi Zaw | U2523900J |
+| Subarna Premkumar | U2522299E |
 
 ## Contents
 
