@@ -4,9 +4,9 @@ A turn-based restaurant management game for the command line, written in Java 17
 
 **Course:** SC2002 Object-Oriented Design & Programming  |  **Lab group:** SCE1  |  **Final version:** Stage 3
 
-**Repository:**  [SC2002_OOP_Restaurant_Rush](https://github.com/SleepyBryan01/SC2002_OOP_Restaurant_Rush)
+**Repository:**  [`SC2002_OOP_Restaurant_Rush`](https://github.com/SleepyBryan01/SC2002_OOP_Restaurant_Rush)
 
-**Video Presentation Link:** https://youtu.be/ckfjWXzogrM 
+**Video Presentation Link:** [`SCE1 Group 3 Video`](https://www.youtube.com/watch?v=ckfjWXzogrM)
 
 | Members | Matriculation Number |
 |---|---|
