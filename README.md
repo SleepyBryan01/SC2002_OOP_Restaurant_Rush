@@ -358,7 +358,7 @@ Tag `gui-extra`. Run with `java -cp out restaurantrush.Main --gui`.
 | Stage comparisons | [Change evidence](#change-evidence-between-stages) |
 | Class diagrams (3) and sequence diagram (1) | [Diagrams](#diagrams) |
 | Group report (with individual reflections) | [`docs/report/Restaurant_Rush_Report.pdf`](docs/report/Restaurant_Rush_Report.pdf) (Word source alongside). Console screenshots are in [`docs/screenshots`](docs/screenshots). |
-| Presentation video | *To be added* |
+| Presentation video | https://youtu.be/ckfjWXzogrM |
 
 **AI usage declaration:** no AI tools were used in this project, so there are no AI histories to upload.
 
