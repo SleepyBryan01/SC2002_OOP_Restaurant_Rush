@@ -10,7 +10,7 @@ A turn-based restaurant management game for the command line, written in Java 17
 
 | Members |
 |---|
-| Bryan Ng Chang Lin | | U2520188B |
+| Bryan Ng Chang Lin | 
 | Corbin Teo |
 | Deng Lisiwei Julie |
 | Poe Pyi Zaw |
