@@ -364,17 +364,18 @@ Tag `gui-extra`. Run with `java -cp out restaurantrush.Main --gui`.
 
 ### Video
 
-Link: https://youtu.be/ckfjWXzogrM 
+Link: [`SCE1 Group 3 Video`](https://www.youtube.com/watch?v=ckfjWXzogrM)
 
 | # | Segment (brief section 6.2) | Time | Presenter |
 |---|---|---|---|
-| 1 | The game launching from the submitted project | [mm:ss] | [name] |
-| 2 | Meaningful manager choices, including a decision where staff are constrained (Waiter on turn 13, `runs/stage3-victory.txt`) | [mm:ss] | [name] |
-| 3 | A dish going READY → SERVED → payment | [mm:ss] | [name] |
-| 4 | A VIP or Critic behaviour | [mm:ss] | [name] |
-| 5 | A Stage 3 feature (Host, combo, Happy Hour) | [mm:ss] | [name] |
-| 6 | One victory and one defeat (`runs/stage3-victory.txt`, `runs/stage3-defeat.txt`) | [mm:ss] | [name] |
-| 7 | The stage tag comparisons and the diagrams | [mm:ss] | [name] |
+| 1 | The game launching from the submitted project | 01:41 | Bryan |
+| 2 | Meaningful manager choices, including a decision where staff are constrained (Waiter on turn 13, `runs/stage3-victory.txt`) | 02:28 | Bryan |
+| 3 | A dish going READY → SERVED → payment | 03:01 | Bryan |
+| 4 | A VIP or Critic behaviour | 03:23 | Subarna |
+| 5 | A Stage 3 feature (Host, combo, Happy Hour) | 03:50 | Subarna |
+| 6 | One victory and one defeat (`runs/stage3-victory.txt`, `runs/stage3-defeat.txt`) | 04:32 | Subarna |
+| 7a | The stage tag comparisons and the diagrams (Stage 1 -> 2) | 06:28 | Julie |
+| 7b | The stage tag comparisons and the diagrams (Stage 2 -> 3) | 07:15 | Julie |
 ## Report
 
 Report Link: [`Restaurant_Rush_Report.pdf`](docs/report/Restaurant_Rush_Report.pdf) (Word source alongside). 
